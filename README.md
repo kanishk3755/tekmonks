@@ -5,6 +5,7 @@
 This project returns the latest 6 stories on Time.com's(highlighted as an image) when I call it as a custom API.
 
 ⬇️The project is running at: http://localhost:3000/getTimeStories
+⬇️Start the server with index.js(starting point)
 
 🔗Result:
 
