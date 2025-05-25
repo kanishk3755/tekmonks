@@ -22,17 +22,37 @@ function extractStories(html) {
   if (sectionEnd === -1) return stories;
 
   const sectionHtml = html.slice(sectionStart, sectionEnd);
+  let index = 0;
 
-  const pattern =
-    /<a[^>]+href="(\/\d{7}\/[^"]+)"[^>]*>[\s\S]*?<h3[^>]*>(.*?)<\/h3>/g;
+  while (stories.length < 6) {
+    const anchorStart = sectionHtml.indexOf("<a", index);
+    if (anchorStart === -1) break;
 
-  let match;
-  while ((match = pattern.exec(sectionHtml)) !== null && stories.length < 6) {
-    const link = `https://time.com${match[1]}`;
-    const title = match[2].replace(/\s+/g, " ").trim();
-    stories.push({ title, link });
+    const anchorEnd = sectionHtml.indexOf("</a>", anchorStart);
+    if (anchorEnd === -1) break;
+
+    const anchorHtml = sectionHtml.slice(anchorStart, anchorEnd + 4); // Include '</a>'
+
+    const hrefStart = anchorHtml.indexOf('href="');
+    const hrefEnd = anchorHtml.indexOf('"', hrefStart + 6);
+    const href = anchorHtml.slice(hrefStart + 6, hrefEnd);
+
+    const h3Start = anchorHtml.indexOf("<h3");
+    const h3OpenEnd = anchorHtml.indexOf(">", h3Start);
+    const h3Close = anchorHtml.indexOf("</h3>", h3OpenEnd);
+    const title = anchorHtml
+      .slice(h3OpenEnd + 1, h3Close)
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (href && title && href.startsWith("/")) {
+      stories.push({
+        title,
+        link: `https://time.com${href}`,
+      });
+    }
+    index = anchorEnd + 4;
   }
-
   return stories;
 }
 
